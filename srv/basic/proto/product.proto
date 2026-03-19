@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./";
+
+message ProductAddReq {
+  string name = 1;
+  float price = 2;
+  string images = 3;
+  string description = 4;
+  int64 categoryId = 5;
+}
+
+message ProductAddResp {
+  string msg = 1;
+  int64 code = 2;
+}
+
+message OrderItemAddReq {
+  int64 userId = 1;
+  int64 payType = 2;
+  int64 addressId = 3;
+  repeated OrderItem list = 4;
+}
+
+message OrderItemAddResp {
+  string orderSn = 1;
+  string payUrl = 2;
+  float total = 3;
+}
+
+message OrderItem {
+  int64 productId = 1;
+  int64 quantity = 2;
+}
+
+
+service Product {
+  rpc ProductAdd(ProductAddReq) returns (ProductAddResp);
+  rpc OrderItemAdd(OrderItemAddReq) returns (OrderItemAddResp);
+}

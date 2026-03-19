@@ -1,0 +1,126 @@
+' =============================================
+' 订单超时自动关单流程 - 时序图 (PlantUML)
+' =============================================
+@startuml order_timeout_sequence
+
+!theme plain
+
+title 订单超时自动关单时序图
+
+== 订单创建 (用户下单) ==
+
+actor User
+participant "API Gateway" as API
+participant "Order Service" as OrderSvc
+participant "Inventory Service" as InvSvc
+participant "MySQL" as DB
+
+User -> API: POST /orders (创建订单)
+activate API
+API -> OrderSvc: CreateOrder()
+activate OrderSvc
+OrderSvc -> DB: INSERT order (status=PENDING)\n记录超时时间 expire_time
+activate DB
+DB --> OrderSvc: order_id
+deactivate DB
+OrderSvc -> InvSvc: ReserveStock()\n锁定库存 (乐观锁)
+activate InvSvc
+InvSvc -> DB: UPDATE inventory\nSET stock = stock - quantity\nWHERE product_id = ? AND stock >= quantity
+activate DB
+alt 库存充足
+    DB --> InvSvc: success
+    InvSvc --> OrderSvc: reserved
+    OrderSvc --> API: {order_id, status=PENDING}
+    API --> User: 订单创建成功
+else 库存不足
+    DB --> InvSvc: 0 rows affected
+    InvSvc --> OrderSvc: ErrStockInsufficient
+    OrderSvc --> API: 库存不足
+    API --> User: 创建订单失败
+end
+deactivate InvSvc
+deactivate OrderSvc
+deactivate API
+
+== 超时检查 (定时任务) ==
+
+participant "Scheduler\n(分布式定时任务)" as Scheduler
+participant "Order Service" as OrderSvc2
+participant "Inventory Service" as InvSvc2
+participant "MySQL" as DB2
+
+Scheduler -> Scheduler: 每分钟轮询\nSELECT * FROM orders\nWHERE status = PENDING\nAND expire_time <= NOW()
+
+loop 每条超时订单
+    Scheduler -> OrderSvc2: ProcessTimeoutOrder(order_id)
+    activate OrderSvc2
+    
+    OrderSvc2 -> DB2: BEGIN TRANSACTION\nSELECT * FROM orders\nWHERE id = ? AND status = PENDING\nFOR UPDATE (行锁)
+    activate DB2
+    
+    alt 订单仍为待支付\n且未超时
+        DB2 --> OrderSvc2: order (已过期)
+        OrderSvc2 -> OrderSvc2: 更新状态为 TIMEOUT
+        
+        OrderSvc2 -> DB2: UPDATE orders\nSET status = TIMEOUT\nWHERE id = ?
+        
+        OrderSvc2 -> InvSvc2: RollbackStock()\n回滚库存
+        activate InvSvc2
+        
+        InvSvc2 -> DB2: UPDATE inventory\nSET stock = stock + quantity\nWHERE product_id = ?
+        DB2 --> InvSvc2: stock_rolled_back
+        InvSvc2 --> OrderSvc2: rolled_back
+        
+        OrderSvc2 -> DB2: INSERT order_logs\n(status, reason, operator)\n记录关单日志
+        DB2 --> OrderSvc2: log_saved
+        
+        OrderSvc2 --> DB2: COMMIT
+        deactivate DB2
+        
+        OrderSvc2 --> Scheduler: {success: true}\n订单已超时关闭
+        
+    else 订单已被支付\n或已取消
+        DB2 --> OrderSvc2: order (状态已变)
+        OrderSvc2 -> DB2: ROLLBACK
+        deactivate DB2
+        OrderSvc2 --> Scheduler: {skipped: true}\n订单无需处理
+    end
+    
+    deactivate OrderSvc2
+end
+
+== 用户主动取消 ==
+
+User -> API: DELETE /orders/:id
+activate API
+API -> OrderSvc3: CancelOrder(order_id, user_id)
+activate OrderSvc3
+OrderSvc3 -> DB3: BEGIN TRANSACTION\nSELECT * FROM orders\nWHERE id = ? AND user_id = ?\nAND status = PENDING\nFOR UPDATE
+activate DB3
+
+alt 订单可取消
+    DB3 --> OrderSvc3: order
+    OrderSvc3 -> InvSvc3: RollbackStock()
+    activate InvSvc3
+    InvSvc3 -> DB3: UPDATE inventory\nSET stock = stock + quantity\nWHERE product_id = ?
+    DB3 --> InvSvc3: rolled
+    InvSvc3 --> OrderSvc3: ok
+    deactivate InvSvc3
+    
+    OrderSvc3 -> DB3: UPDATE orders\nSET status = CANCELLED\nWHERE id = ?
+    DB3 --> OrderSvc3: updated
+    OrderSvc3 --> DB3: COMMIT
+    deactivate DB3
+    OrderSvc3 --> API: {status: CANCELLED}
+    API --> User: 取消成功
+else 订单不可取消
+    DB3 --> OrderSvc3: null
+    OrderSvc3 -> DB3: ROLLBACK
+    deactivate DB3
+    OrderSvc3 --> API: 订单不可取消
+    API --> User: 取消失败
+end
+deactivate OrderSvc3
+deactivate API
+
+@enduml

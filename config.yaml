@@ -1,0 +1,32 @@
+Nacos:
+  Addr: "115.190.57.74"
+  Port: 8848
+  Namespace: ""
+  DataID: "product-service.yaml"
+  Group: "DEFAULT_GROUP"
+
+Consul:
+  Host: "115.190.57.74"
+  Port: 8500
+  ServiceName: "product-service"
+  ServicePort: 50052
+  TTL: 10
+
+Mysql:
+  Host: "115.190.57.74"
+  Port: 3306
+  User: "root"
+  Password: "4ay1nkal3u8ed77y"
+  Database: "yk"
+
+Redis:
+  Host: "115.190.57.74"
+  Port: 6379
+  Password: "4ay1nkal3u8ed77y"
+  Database: 0
+
+AliPay:
+  PrivateKey: "MIIEpAIBAAKCAQEAmB7AVHdj8nYFkqEzn7s46WlwGxD46gbbwvcNIoEkejftDx4mJZK15otB/W9/r17M8IL+INdLq9pYS0Eor9IDgr/ngUgyQTRb4MPrFcJEjTqzuc0B5GUh+WVnkFw0+rQIS+gwfvbqEuvzxMI3Fge/qPKMU4FI8vHgsGxFmaU1eSLUaIkTpNNQAuCColfm32eIoFisqwomPbV8TXQiHq72ItUf3r1aYh2XUo89UqRY6fdejJRDgj4UcU6eaUtMEJCpYAr2ATXffdWb+Wi1KWZbRhtK5U43s8edYOLXQ2/2f+UTG2vTBmdaSrGrYx8IDo7GphgGThH46Cr9mGl9HGgXUQIDAQABAoIBABgtSwQhtZDjkR8s37eTWgg+6cJjgCwxytvByCSjwdhq6xJsCEQQfTiXCXXuMqz8tDXFm/48OZqmqUHMqVrIViaBuZmij9otKC0g9kwPBDYuDkKJgrN6H1wz8bHP9duioW7vCEYlmC5JsgSjmX223Y9MfWEIOz/hkYR4sNcqmsUVtExxWGNoQhkkMmGXLqKHmkM7FQWUybk3ybIfK2K94hEEZTGp5e7XRQ1MrGFlrsMO42bF9mFamGBzheZix2B3sIyTTNietBIbUYfHqizF9ilDq/XNUlLbe3/azUg4H2NMvtkMx03ljpXTgASn9fJmkNP4Me9WVlqJTvgutwoM7AECgYEA7FSOM0OQ4YMvmuwrm+LRUEPC+2fsyhHcLROsVYX7rOcvK8LBet9GCYtIQ30boArt1VIIQZoeH6zR2IdBhqcvrmzIWF5Gxoh4gvOHRIohESvq8qEzEbD3ziXMpS4yorNelV1aFX7bsA1VXSbIWP5+4Z4Igen6yDuDcv83iimjrekCgYEApMfyGz/Rb6Tk7EnL8XtzTO/rN1dSdvXwC7zntocrf+upVw6i0FpoK7/DZTyDNn5bkI+mbLBCtyaBVfV8pw1iIpARn09Icc+gpVV7itw4PYmgrvCCw7JAUR1wUXfPbRQwtjoMOeyviVImrmEbb+O2KARMt7hvIuO3bj+X0U6wNSkCgYEAu1afzpVd0NY8M3PJce4P/K9qbf5I3znfLkBtGPJ3ue0dIHRnCS7ahxBI/W68Klbfh31anB4+iN9nDVzSnZoEGyGSgzJgqlpeJXhEnxlb8w+8VA9iu0Bsf5bJLZt8eirz7DUvBuEj5t/67jejE6DSFak/lzRSHs3Geq9DaJtva5kCgYBM+IzyB5R4Nykr6qjWSxknxiY0epitsuIHSZ1fGLLMFTPL061f7+sbDH9kSajtCocQ9tkBijAPx2/AzGQG0GyXwn5I0UsAxsC+mjiUO5wVurURIo2ihiAfA8ZUd8evpy+9302YvSOd3H7vE7MyR8bt2FxRsVhQjtg/KntrLPuISQKBgQDgl/Qgt3sv/FLpS5VtWA+WIgjtpuIzM7BUiBiQ3lVcQDggHyRWKvnmrUb6ps5AG0/Gu+D750HbAHBUww/gpMIfnVjuekGPLN9rNdSihkoTCKUikmvF+LgxV5ByO7YsEW4hKF+TtMZKv2EWEuN7bBJOzBChR4NmqqgOiM7U2S/wyA=="
+  AppId: "9021000157679168"
+  NotifyURL: "http://4bee072b.r32.cpolar.top/notify/pay"
+  ReturnURL: "http://4bee072b.r32.cpolar.top/callback"
