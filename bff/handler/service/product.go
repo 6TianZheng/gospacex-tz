@@ -39,3 +39,37 @@ func ProductAdd(c *gin.Context) {
 	})
 
 }
+
+func OrderCreate(c *gin.Context) {
+	var req request.CreateOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 构建订单商品列表
+	var list []*__.OrderItem
+	for _, item := range req.List {
+		list = append(list, &__.OrderItem{
+			ProductId: item.ProductId,
+			Quantity:  item.Quantity,
+		})
+	}
+
+	resp, err := config.ProductClient.OrderItemAdd(c, &__.OrderItemAddReq{
+		UserId:    req.UserId,
+		PayType:   req.PayType,
+		AddressId: req.AddressId,
+		List:      list,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"OrderSn": resp.OrderSn,
+		"Url":     resp.PayUrl,
+		"Total":   resp.Total,
+	})
+	return
+}

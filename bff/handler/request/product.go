@@ -1,11 +1,11 @@
 package request
 
 type ProductAdd struct {
-	Name        string  `form:"name"  binding:"required"`
-	Price       float64 `form:"price"  binding:"required"`
-	Images      string  `form:"images"  binding:"required"`
-	Description string  `form:"description"  binding:"required"`
-	CategoryId  int     `form:"categoryId"  binding:"required"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Images      string  `json:"images"`
+	Description string  `json:"description"`
+	CategoryId  int     `json:"categoryId"`
 }
 
 type OrderItem struct {

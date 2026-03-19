@@ -10,6 +10,8 @@ func Router() *gin.Engine {
 
 	r.POST("product/add", service.ProductAdd)
 
+	r.POST("order/add", service.OrderCreate)
+
 	r.POST("notify/pay", service.NotifyPay)
 
 	return r
