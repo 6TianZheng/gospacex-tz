@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gospacex-tz/srv/basic/config"
+	"gospacex-tz/srv/basic/inits"
 	"gospacex-tz/srv/handler/service"
 	"log"
 	"net"
@@ -17,13 +19,13 @@ var (
 )
 
 func main() {
-	//log.Println("Consul初始化成功")
-	//services, err := inits.GetServiceWithLoadBalancer(config.GlobalConfig.Consul.ServiceName)
-	//if err != nil {
-	//	log.Printf("获取用户服务失败: %v", err)
-	//} else {
-	//	log.Printf("获取到用户服务: %s, 地址: %s:%d", services.Service, services.Address, services.Port)
-	//}
+	log.Println("Consul初始化成功")
+	services, err := inits.GetServiceWithLoadBalancer(config.GlobalConfig.Consul.ServiceName)
+	if err != nil {
+		log.Printf("获取用户服务失败: %v", err)
+	} else {
+		log.Printf("获取到用户服务: %s, 地址: %s:%d", services.Service, services.Address, services.Port)
+	}
 	flag.Parse()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
@@ -35,9 +37,9 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-	//err = inits.ConsulShutdown()
-	//if err != nil {
-	//	return
-	//}
-	//fmt.Println("服务已退出")
+	err = inits.ConsulShutdown()
+	if err != nil {
+		return
+	}
+	fmt.Println("服务已退出")
 }
